@@ -6,8 +6,18 @@ class sensu_handlers::mailer inherits sensu_handlers {
 
   ensure_packages(['nagios-plugins-basic'])
 
-  package { 'rubygem-mail':
-    ensure => '2.5.4',
+  case $::osfamily {
+    'Debian': {
+      $mail_package = 'ruby-mail'
+      $mail_version = '2.5.4-2'
+    } else {
+      $mail_package = 'rubygem-mail'
+      $mail_version = '2.5.4'
+    }
+  }
+
+  package { $mail_package:
+    ensure => $mail_version,
   } ->
   sensu::handler { 'mailer':
     type    => 'pipe',
