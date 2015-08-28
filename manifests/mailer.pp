@@ -10,7 +10,8 @@ class sensu_handlers::mailer inherits sensu_handlers {
     'Debian': {
       $mail_package = 'ruby-mail'
       $mail_version = '2.5.4-2'
-    } else {
+    } 
+    default:  {
       $mail_package = 'rubygem-mail'
       $mail_version = '2.5.4'
     }
