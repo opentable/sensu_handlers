@@ -4,14 +4,15 @@
 #
 class sensu_handlers::pagerduty inherits sensu_handlers {
 
-  ensure_packages(['rubygem-redphone'])
+  ensure_packages(['redphone'], {'provider' => 'gem'})
+
   sensu::handler { 'pagerduty':
     type    => 'pipe',
     source  => 'puppet:///modules/sensu_handlers/pagerduty.rb',
     config  => {
       teams => $teams,
     },
-    require => [ Package['rubygem-redphone'] ],
+    require => [ Package['redphone'] ],
   }
   # If we are going to send pagerduty alerts, we need to be sure it actually is up
   monitoring_check { 'check_pagerduty':
