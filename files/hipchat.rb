@@ -1,10 +1,12 @@
+#!/usr/bin/env ruby
+
 require "#{File.dirname(__FILE__)}/base"
 require 'hipchat'
 #require_relative 'base'
 
 class Hipchat < BaseHandler
   def handle
-    response = timeout_and_retry do
+    timeout_and_retry do
       case @event['check']['status'].to_i
       when 1,2
         trigger_incident
@@ -26,9 +28,13 @@ class Hipchat < BaseHandler
     alert_hipchat(color: hipchat_message_colour)
   end
 
+  def event_time
+    Time.at(@event['check']['issued']).utc.to_s
+  end
+
   def hipchat_message
 "
-<b>#{Time.at(@event['check']['issued'])} - #{@event['check']['name']} on #{@event['client']['name']} (#{@event['client']['address']}) - #{human_check_status}</b>
+<b>#{event_time} - #{@event['check']['name']} on #{@event['client']['name']} (#{@event['client']['address']}) - #{human_check_status}</b>
 <br /><br />
 &nbsp;&nbsp;#{@event['check']['notification'] || @event['check']['output']}
 "
