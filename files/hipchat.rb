@@ -55,13 +55,18 @@ class Hipchat < BaseHandler
     end
   end
 
-  def hipchat_room
-    team_data('hipchat_room') || false
+  def default_room
+    settings[self.class.name.downcase]['hipchat_room']
   end
+
+  def hipchat_room
+    team_data('hipchat_room') || default_room || nil
+  end 
 
   def alert_hipchat(room, sender, message, options_or_notify = {})
     return false unless api_key
 
+    # TODO handle failure to send,  such as bad room.
     hipchat_client = HipChat::Client.new(api_key)
     hipchat_client[room].send(sender, message, options_or_notify)
   end
