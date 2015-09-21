@@ -2,7 +2,9 @@
 #
 # Sensu handler to send emails.
 #
-class sensu_handlers::mailer inherits sensu_handlers {
+class sensu_handlers::mailer(
+  $mail_from = 'sensu@yelp.com',
+) inherits sensu_handlers {
 
   ensure_packages(['nagios-plugins-basic'])
 
@@ -10,7 +12,7 @@ class sensu_handlers::mailer inherits sensu_handlers {
     'Debian': {
       $mail_package = 'ruby-mail'
       $mail_version = '2.5.4-2'
-    } 
+    }
     default:  {
       $mail_package = 'rubygem-mail'
       $mail_version = '2.5.4'
