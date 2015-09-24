@@ -24,7 +24,7 @@ class sensu_handlers::hipchat (
   }
 
   if $install_gem { 
-    ensure_resource('package', 'hipchat', {'provider' => 'gem'})
+    ensure_resource('package', 'hipchat', {'provider' => 'sensu_gem'})
   }
 
 }

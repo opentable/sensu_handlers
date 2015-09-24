@@ -4,7 +4,7 @@
 #
 class sensu_handlers::pagerduty inherits sensu_handlers {
 
-  ensure_packages(['redphone'], {'provider' => 'gem'})
+  ensure_packages(['redphone'], {'provider' => 'sensu_gem'})
 
   sensu::handler { 'pagerduty':
     type    => 'pipe',
