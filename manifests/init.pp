@@ -27,7 +27,7 @@
 #  Fill in the credentials and url to your local JIRA instance.
 #
 # [*use_embeded_ruby*]
-#  use provider => sensu_gem for any gem packages
+#  use provider => sensuclassic_gem for any gem packages
 #
 # [*api_client_config*]
 # Out of the box Sensu::Handler connects to sensu-api instance described in
@@ -65,7 +65,7 @@ class sensu_handlers(
   validate_hash($teams, $api_client_config)
 
   $gem_provider = $use_embedded_ruby ? {
-    true    => 'sensu_gem',
+    true    => 'sensuclassic_gem',
     default => 'gem'
   }
 
@@ -101,9 +101,9 @@ class sensu_handlers(
     owner  => root,
     group  => root;
   } ->
-  sensu::handler { 'default':
+  sensuclassic::handler { 'default':
     type      => 'set',
-    command   => true,
+    command   => '/bin/true',
     handlers  => $default_handler_array,
     config    => {
       dashboard_link => $dashboard_link,

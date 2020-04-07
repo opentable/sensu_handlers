@@ -14,13 +14,13 @@ class sensu_handlers::jira (
   create_resources(
     'package',
     $dependencies,
-    { before => Sensu::Handler['jira'] }
+    { before => Sensuclassic::Handler['jira'] }
   )
 
-  sensu::filter { 'ticket_filter':
+  sensuclassic::filter { 'ticket_filter':
     attributes => { 'check' => { 'ticket' => true } },
   } ->
-  sensu::handler { 'jira':
+  sensuclassic::handler { 'jira':
     type    => 'pipe',
     source  => 'puppet:///modules/sensu_handlers/jira.rb',
     config  => {

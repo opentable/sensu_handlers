@@ -8,7 +8,7 @@ class sensu_handlers::slack (
   $compact_message   = false,
 ) inherits sensu_handlers {
 
-  sensu::handler { 'slack':
+  sensuclassic::handler { 'slack':
     type    => 'pipe',
     source  => 'puppet:///modules/sensu_handlers/slack.rb',
     filters => flatten([

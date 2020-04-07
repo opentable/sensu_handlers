@@ -18,10 +18,10 @@ class sensu_handlers::hipchat (
   create_resources(
     package,
     $dependencies,
-    { before => Sensu::Handler['hipchat'] }
+    { before => Sensuclassic::Handler['hipchat'] }
   )
 
-  sensu::handler { 'hipchat':
+  sensuclassic::handler { 'hipchat':
     type    => 'pipe',
     source  => 'puppet:///modules/sensu_handlers/hipchat.rb',
     config  => {

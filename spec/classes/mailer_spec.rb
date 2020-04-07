@@ -24,7 +24,7 @@ describe "sensu_handlers::mailer" do
         let(:pre_condition) do
           %( class {'sensu_handlers':  use_embedded_ruby => true } )
         end
-        it { should contain_package('mail').with_provider('sensu_gem') }
+        it { should contain_package('mail').with_provider('sensuclassic_gem') }
       end
     end
 

@@ -48,8 +48,8 @@ describe 'sensu_handlers', :type => :class do
 
     context "when true" do
       let(:use_embedded_ruby)  { true }
-      it "sets $gem_provider to sensu_gem" do
-        should create_package(:foo).with_provider('sensu_gem')
+      it "sets $gem_provider to sensuclassic_gem" do
+        should create_package(:foo).with_provider('sensuclassic_gem')
       end
     end
 

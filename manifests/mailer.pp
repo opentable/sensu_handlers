@@ -21,10 +21,10 @@ class sensu_handlers::mailer (
   create_resources(
     package,
     $dependencies,
-    { before => Sensu::Handler['mailer'] }
+    { before => Sensuclassic::Handler['mailer'] }
   )
 
-  sensu::handler { 'mailer':
+  sensuclassic::handler { 'mailer':
     type    => 'pipe',
     source  => 'puppet:///modules/sensu_handlers/mailer.rb',
     filters => flatten([
@@ -36,7 +36,7 @@ class sensu_handlers::mailer (
     }
   } ->
 
-  monitoring_check { 'check_smtp_for_sensu_handler':
+  mon_check { 'check_smtp_for_sensu_handler':
     check_every   => '5m',
     alert_after   => '10m',
     realert_every => '10',
@@ -44,7 +44,6 @@ class sensu_handlers::mailer (
     team          => $sensu_handlers::team,
     command       => "/usr/lib/nagios/plugins/check_smtp -H ${sensu_handlers::mailer_server}",
     runbook       => $sensu_handlers::mailer_runbook,
-    tip           => $sensu_handlers::mailer_tip,
   }
 
 }

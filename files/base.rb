@@ -255,7 +255,7 @@ BODY
 
     # nil.to_i == 0
     # 0 || 1   == 0
-    realert_every = ( @event['check']['realert_every'] || 1 ).to_i 
+    realert_every = ( @event['check']['realert_every'] || 1 ).to_i
     # realert_every can't be 0 because of potential ZeroDivisionError below
     realert_every = -1 if realert_every == 0
 
@@ -275,7 +275,7 @@ BODY
       return
     end
 
-    # Don't bother acting if we haven't hit the 
+    # Don't bother acting if we haven't hit the
     # alert_after threshold
     if number_of_failed_attempts < 1
       bail "Not failing long enough, only #{number_of_failed_attempts} after " \
@@ -283,7 +283,7 @@ BODY
     # If we have an interval, and this is a creation event, that means we are
     # an active check
     # Lets also filter based on the realert_every setting
-    elsif interval > 0 and @event['action'] == 'create' 
+    elsif interval > 0 and @event['action'] == 'create'
       # Special case of exponential backoff
       if realert_every == -1
         # If our number of failed attempts is an exponent of 2
