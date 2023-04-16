@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'puppetlabs_spec_helper', '0.4.1'      # Apache2
-gem 'rake', '10.1.0'                       # MIT
+gem 'rake', '12.3.3'                       # MIT
 gem 'rspec', '2.14.1'                      # MIT
 gem 'rspec-core', '2.14.5'                 # MIT
 gem 'rspec-expectations', '2.14.5'         # MIT
