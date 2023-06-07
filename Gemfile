@@ -13,7 +13,7 @@ gem 'rspec-puppet',
   :ref => '06aa6c675baafa538b4d06107fc239cd025159fd'
 
 gem 'puppet', '~> 3.6.2'                     # Apache2
-gem 'facter', '1.7.5'                      # Apache2
+gem 'facter', '2.4.1'                      # Apache2
 gem 'sensu-plugin'
 gem 'hiera-puppet-helper',
   :git => 'https://github.com/bobtfish/hiera-puppet-helper.git',
