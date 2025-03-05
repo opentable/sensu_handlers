@@ -62,7 +62,8 @@ class sensu_handlers(
   $use_num_occurrences_filter = false,
 ) {
 
-  validate_hash($teams, $api_client_config)
+  assert_type(Hash[String, Any], $teams)
+  assert_type(Hash[String, Any], $api_client_config)
 
   $gem_provider = $use_embedded_ruby ? {
     true    => 'sensuclassic_gem',
