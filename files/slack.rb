@@ -4,9 +4,19 @@ require "json"
 require "net/http"
 require "#{File.dirname(__FILE__)}/base"
 
-class Slack < BaseHandler
-  def slack_url
-    handler_settings['webhook_url']
+class OTSlack < BaseHandler
+  # Slack bot token - replace with your actual bot token
+  SLACK_BOT_TOKEN = ""
+  
+  def slack_token
+    SLACK_BOT_TOKEN
+  end
+
+  def slack_channel
+    # Get the channel name and remove leading # if present
+    channel = team_data('notifications_slack_channel')
+    return nil if channel.nil? || channel.empty?
+    channel.gsub(/^#/, '')
   end
 
   def compact_messages
@@ -31,109 +41,125 @@ class Slack < BaseHandler
     "##{team_name}-pages"
   end
 
-  def message
-    # Slack provides a few color presets for situations like these
-    # There's no specific reason for using them here, except that they seem
-    # like sane defaults. There's no reason not to override them if you want!
+  def message_attachment
+    # Create rich text blocks attachment for the API call
     case @event['check']['status']
     when 0
+      status_emoji = "white_check_mark"
       status = 'OK'
-      color  = 'good'
+      color = "#4CBB17"  # Green
     when 1
+      status_emoji = "warning"
       status = 'WARNING'
-      color = 'warning'
+      color = "#FFA500"  # Orange
     when 2
+      status_emoji = "x"
       status = 'CRITICAL'
-      color = 'danger'
+      color = "#FF0000"  # Red
     else
+      status_emoji = "question"
       status = 'UNKNOWN'
-      color = '#aaaaaa'
+      color = "#800080"  # Purple
     end
 
-    message_fields = [
-      {
-        "title" => "Hostname",
-        "value" => client_display_name,
-        "short" => true
-      },
-      {
-        "title" => "Check",
-        "value" => "<#{dashboard_link}|#{check_name}>",
-        "short" => true
-      },
-      {
-        "title" => "Status",
-        "value" => status,
-        "short" => true
-      }
-    ]
-
+    # Build rich text elements
+    elements = []
+    
+    # Status line with emoji and bold text
+    elements << {"type" => "emoji", "name" => status_emoji}
+    elements << {"type" => "text", "text" => " "}
+    elements << {"type" => "text", "text" => status, "style" => {"bold" => true}}
+    elements << {"type" => "text", "text" => "\n"}
+    
+    # Host information
+    elements << {"type" => "text", "text" => "Host:", "style" => {"bold" => true}}
+    elements << {"type" => "text", "text" => " #{client_display_name}\n"}
+    
+    # Check information
+    elements << {"type" => "text", "text" => "Check:", "style" => {"bold" => true}}
+    elements << {"type" => "text", "text" => " "}
+    elements << {"type" => "link", "url" => dashboard_link, "text" => check_name}
+    elements << {"type" => "text", "text" => "\n"}
+    
+    # Output for warning/critical
     if event_is_critical? or event_is_warning?
-      message_fields << {
-        "title" => "Runbook",
-        "value" => "#{runbook}",
-        "short" => true
-      }
+      elements << {"type" => "text", "text" => "Output:", "style" => {"bold" => true}}
+      elements << {"type" => "text", "text" => " "}
     end
 
-    message_fields << {
-      "title" => "Check Output",
-      "value" => "```#{@event['check']['output']}```",
-      "short" => false
-    }
-
+    # Create the blocks structure
+    blocks = [{"type" => "rich_text_section", "elements" => elements}]
+    
+    # Add preformatted output for warning/critical
     if event_is_critical? or event_is_warning?
-      message_fields << {
-        "title" => "Tip",
-        "value" => tip,
-        "short" => false
+      blocks << {
+        "type" => "rich_text_preformatted",
+        "elements" => [{"type" => "text", "text" => @event['check']['output']}]
       }
+      
+      # Add runbook if available
+      if runbook && !runbook.empty?
+        runbook_elements = [
+          {"type" => "text", "text" => "Runbook:", "style" => {"bold" => true}},
+          {"type" => "text", "text" => " "},
+          {"type" => "link", "url" => runbook}
+        ]
+        blocks << {"type" => "rich_text_section", "elements" => runbook_elements}
+      end
     end
 
-    expanded_msg = {
-      "username"    => "Sensu",
-      "attachments" => [
-        {
-          "color"    => color,
-          "fallback" => description(maxlen=400),
-          "fields"   => message_fields,
-          "footer"   => Socket.gethostname,
-          "ts"       => Time.now.utc.to_f
-        }
-      ]
-    }
-
-    compact_msg = {
-        "attachments" => [{
-            "color"    => color,
-            "username" => "Sensu (#{Socket.gethostname.split('.')[0]})",
-            "text"     => description(maxlen=400).sub(check_name, "<#{dashboard_link}|#{check_name}>")
-        }]
-    }
-
-    if compact_messages
-      compact_msg
-    else
-      expanded_msg
-    end
+    # Return attachment structure
+    [{
+      "color" => color,
+      "blocks" => [{
+        "type" => "rich_text",
+        "block_id" => "sensu_alert_#{Time.now.to_i}",
+        "elements" => blocks
+      }]
+    }]
   end
 
   def handle
-    channels.each do |channel|
-      post_to_slack(channel, message)
+    channel = slack_channel
+    if channel.nil? || channel.empty?
+      puts "No Slack channel configured for team #{team_name}"
+      return
     end
+    
+    token = slack_token
+    if token.nil? || token.empty?
+      puts "No Slack bot token configured for team #{team_name}"
+      return
+    end
+    
+    post_to_slack(channel, token)
   end
 
-  def post_to_slack(channel, msg)
-    msg['channel'] = channel
-    webhook_url = slack_url
-    uri = URI(webhook_url)
-
+  def post_to_slack(channel, token)
+    puts "channel: #{channel}"
+    puts "token: #{token ? 'present' : 'missing'}"
+    puts "team_data: #{team_data.inspect}"
+    
+    # Prepare the API payload with attachments
+    payload = {
+      "channel" => channel,
+      "username" => "Sensu",
+      "attachments" => message_attachment
+    }
+    
+    # Use Slack Web API
+    uri = URI("https://slack.com/api/chat.postMessage?username=Sensu")
+    
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
-    request = Net::HTTP::Post.new(uri.path, 'Content-Type' => 'application/json')
-    request.body = msg.to_json
+    
+    request = Net::HTTP::Post.new(uri.path)
+    request['Authorization'] = "Bearer #{token}"
+    request['Content-Type'] = 'application/json'
+    request.body = payload.to_json
+    
     http.request(request).tap do |res|
+      puts "Slack API response: #{res.code} - #{res.body}"
       log res.inspect unless res.is_a?(Net::HTTPSuccess)
     end
   end
