@@ -4,12 +4,11 @@ require "json"
 require "net/http"
 require "#{File.dirname(__FILE__)}/base"
 
-class OTSlack < BaseHandler
-  # Slack bot token - replace with your actual bot token
-  SLACK_BOT_TOKEN = ""
+class Slack < BaseHandler
+  #SLACK_BOT_TOKEN = ""
   
   def slack_token
-    SLACK_BOT_TOKEN
+    handler_settings['slack_bot_token']
   end
 
   def slack_channel
