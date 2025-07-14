@@ -5,8 +5,7 @@ require "net/http"
 require "#{File.dirname(__FILE__)}/base"
 
 class Slack < BaseHandler
-  #SLACK_BOT_TOKEN = ""
-  
+  #SLACK_BOT_TOKEN = "see from global.yaml"
   def slack_token
     handler_settings['slack_bot_token']
   end
