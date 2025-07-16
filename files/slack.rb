@@ -4,8 +4,7 @@ require "json"
 require "net/http"
 require "#{File.dirname(__FILE__)}/base"
 
-class Slack < BaseHandler
-  #SLACK_BOT_TOKEN = "see from global.yaml"
+class OTSlack < BaseHandler
   def slack_token
     handler_settings['slack_bot_token']
   end
@@ -79,32 +78,31 @@ class Slack < BaseHandler
     elements << {"type" => "link", "url" => dashboard_link, "text" => check_name}
     elements << {"type" => "text", "text" => "\n"}
     
-    # Output for warning/critical
-    if event_is_critical? or event_is_warning?
-      elements << {"type" => "text", "text" => "Output:", "style" => {"bold" => true}}
-      elements << {"type" => "text", "text" => " "}
-    end
+    # Output for all events
+    elements << {"type" => "text", "text" => "Output:", "style" => {"bold" => true}}
+    elements << {"type" => "text", "text" => " "}
+    
 
     # Create the blocks structure
     blocks = [{"type" => "rich_text_section", "elements" => elements}]
     
     # Add preformatted output for warning/critical
-    if event_is_critical? or event_is_warning?
-      blocks << {
-        "type" => "rich_text_preformatted",
-        "elements" => [{"type" => "text", "text" => @event['check']['output']}]
-      }
-      
-      # Add runbook if available
-      if runbook && !runbook.empty?
-        runbook_elements = [
-          {"type" => "text", "text" => "Runbook:", "style" => {"bold" => true}},
-          {"type" => "text", "text" => " "},
-          {"type" => "link", "url" => runbook}
-        ]
-        blocks << {"type" => "rich_text_section", "elements" => runbook_elements}
-      end
+
+    blocks << {
+      "type" => "rich_text_preformatted",
+      "elements" => [{"type" => "text", "text" => @event['check']['output']}]
+    }
+    
+    # Add runbook if available
+    if runbook && !runbook.empty?
+      runbook_elements = [
+        {"type" => "text", "text" => "Runbook:", "style" => {"bold" => true}},
+        {"type" => "text", "text" => " "},
+        {"type" => "link", "url" => runbook}
+      ]
+      blocks << {"type" => "rich_text_section", "elements" => runbook_elements}
     end
+    
 
     # Return attachment structure
     [{
