@@ -6,6 +6,7 @@ class sensu_handlers::slack (
   $webhook_url,
   $use_default_pager = true,
   $compact_message   = false,
+  $slack_bot_token,
 ) inherits sensu_handlers {
 
   sensuclassic::handler { 'slack':
