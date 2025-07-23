@@ -4,7 +4,7 @@ require "json"
 require "net/http"
 require "#{File.dirname(__FILE__)}/base"
 
-class OTSlack < BaseHandler
+class Slack < BaseHandler
   def slack_token
     handler_settings['slack_bot_token']
   end
