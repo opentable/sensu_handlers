@@ -100,7 +100,7 @@ describe 'sensu_handlers', :type => :class do
         should contain_sensu__handler('jira') \
           .with_filters(['ticket_filter'])
         should contain_sensu__handler('pagerduty') \
-          .with_filters(['page_filter'])
+          .with_filters(['page_filter', 'execution_timed_out_page_filter', 'unknown_no_metrics_received_page_filter'])
         should contain_sensu__handler('nodebot').with_filters([])
         should contain_sensu__handler('mailer').with_filters([])
       }
@@ -113,7 +113,7 @@ describe 'sensu_handlers', :type => :class do
         should contain_sensu__handler('jira') \
           .with_filters(['ticket_filter', 'num_occurrences_filter'])
         should contain_sensu__handler('pagerduty') \
-          .with_filters(['page_filter', 'num_occurrences_filter_for_pagerduty'])
+          .with_filters(['page_filter', 'execution_timed_out_page_filter', 'unknown_no_metrics_received_page_filter', 'num_occurrences_filter_for_pagerduty'])
         should contain_sensu__handler('nodebot') \
           .with_filters(['num_occurrences_filter'])
         should contain_sensu__handler('mailer') \

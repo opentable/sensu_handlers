@@ -17,6 +17,14 @@ class sensu_handlers::pagerduty (
   sensuclassic::filter { 'page_filter':
     attributes => { 'check' => { 'page' => true } },
   } ->
+  sensuclassic::filter { 'execution_timed_out_page_filter':
+    attributes => { 'check' => { 'output' => 'Execution timed out' } },
+    negate     => true,
+  } ->
+  sensuclassic::filter { 'unknown_no_metrics_received_page_filter':
+    attributes => { 'check' => { 'output' => "UNKNOWN: no metrics received from graphite\n" } },
+    negate     => true,
+  } ->
   sensuclassic::handler { 'pagerduty':
     type    => 'pipe',
     source  => 'puppet:///modules/sensu_handlers/pagerduty.rb',
@@ -25,6 +33,8 @@ class sensu_handlers::pagerduty (
     },
     filters => flatten([
       'page_filter',
+      'execution_timed_out_page_filter',
+      'unknown_no_metrics_received_page_filter',
       $sensu_handlers::num_occurrences_filter_for_pagerduty,
     ]),
   } ->
