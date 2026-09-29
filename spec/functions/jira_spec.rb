@@ -48,6 +48,15 @@ describe Jira do
     subject.handle
   end
 
+  it "Defaults issuetype to the historical hardcoded id when unset" do
+    expect(subject.issuetype).to eq(1)
+  end
+
+  it "Uses a configured issuetype from the check" do
+    subject.event['check']['issuetype'] = 'Task'
+    expect(subject.issuetype).to eq('Task')
+  end
+
   it "Wont make a ticket if it doesn't have a project available" do
     subject.event['check']['ticket'] = true
     subject.event['check']['status'] = 2

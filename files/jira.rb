@@ -43,7 +43,7 @@ class Jira < BaseHandler
             "summary"=> summary,
             "description"=> description,
             "project"=> { "id"=>project_id },
-            "issuetype"=> {"id"=>1},
+            "issuetype"=> issuetype.is_a?(Integer) ? {"id"=>issuetype} : {"name"=>issuetype},
             "labels" => build_labels
           }
         }
@@ -104,6 +104,13 @@ class Jira < BaseHandler
 
   def project
     @event['check']['project'] || team_data('project')
+  end
+
+  # defaults to the historical hardcoded id (usually "Bug" in default Jira
+  # schemes) when the check/team doesn't configure one, so existing checks
+  # keep behaving exactly as before.
+  def issuetype
+    @event['check']['issuetype'] || team_data('issuetype') || 1
   end
 
   def handle
