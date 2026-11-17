@@ -39,9 +39,21 @@ class Pagerduty < BaseHandler
     )['status'] == 'success'
   end
 
+  def silenced?
+    @event['silenced'] || false
+  end
+
+  def resolving?
+    [0, 1].include?(@event['check']['status'].to_i)
+  end
+
   def handle
     if !should_page? # Explicitly check for true. We don't page by default.
       log "pagerduty -- Ignoring incident #{incident_key} as it is not set to page."
+      return
+    end
+    if silenced? && !resolving?
+      log "pagerduty -- Ignoring incident #{incident_key} as it is silenced."
       return
     end
     begin

@@ -26,12 +26,16 @@ class sensu_handlers::pagerduty (
     negate     => true,
   } ->
   sensuclassic::handler { 'pagerduty':
-    type    => 'pipe',
-    source  => 'puppet:///modules/sensu_handlers/pagerduty.rb',
-    config  => {
+    type            => 'pipe',
+    source          => 'puppet:///modules/sensu_handlers/pagerduty.rb',
+    config          => {
       teams => $teams,
     },
-    filters => flatten([
+    # Acknowledging in PagerDuty silences the check (pagerduty_webhook), so
+    # silenced events must reach the handler or the resolve is never sent.
+    # pagerduty.rb drops silenced triggers itself.
+    handle_silenced => true,
+    filters         => flatten([
       'page_filter',
       'execution_timed_out_page_filter',
       'unknown_no_metrics_received_page_filter',
