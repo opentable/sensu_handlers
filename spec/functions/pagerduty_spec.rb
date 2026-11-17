@@ -72,6 +72,35 @@ describe Pagerduty do
       subject.handle
     end
 
+    context "silenced events" do
+      before(:each) { subject.event['silenced'] = true }
+
+      it "Event resolved in pagerduty if OK" do
+        expect(subject).to receive(:resolve_incident).and_return(true)
+        subject.handle
+      end
+
+      it "Event resolved in pagerduty if WARNING" do
+        subject.event['check']['status'] = 1
+        expect(subject).to receive(:resolve_incident).and_return(true)
+        subject.handle
+      end
+
+      it "Does not trigger an incident if critical" do
+        subject.event['check']['status'] = 2
+        expect(subject).not_to receive(:trigger_incident)
+        subject.handle
+        expect(subject.logged).to match(/as it is silenced\.$/)
+      end
+
+      it "Does not handle an UNKNOWN" do
+        subject.event['check']['status'] = 3
+        expect(subject).not_to receive(:trigger_incident)
+        expect(subject).not_to receive(:resolve_incident)
+        subject.handle
+      end
+    end
+
     context "Pagerduty with datacenter in incident key times out with / errors" do
       before(:each) do
         subject.event['check']['status'] = 2

@@ -42,4 +42,8 @@ describe 'sensu_handlers::pagerduty' do
       ['page_filter', 'execution_timed_out_page_filter', 'unknown_no_metrics_received_page_filter']
     )
   end
+
+  it 'lets silenced events reach the pagerduty handler so resolves are sent' do
+    should contain_sensu__handler('pagerduty').with_handle_silenced(true)
+  end
 end
